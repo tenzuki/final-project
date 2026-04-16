@@ -137,11 +137,20 @@ export const register = ({
       if (image) dispatch(uploadImage(user._id, image)); // Upload image
       dispatch({ type: REGISTER_SUCCESS, payload: responseData });
       dispatch(setAlert('Register Success', 'success', 5000));
+      return;
     }
-    if (responseData._message) {
-      dispatch({ type: REGISTER_FAIL });
-      dispatch(setAlert(responseData.message, 'error', 5000));
-    }
+    dispatch({ type: REGISTER_FAIL });
+    const fieldErrors = responseData.errors
+      ? Object.values(responseData.errors)
+          .map(error => error.message)
+          .join(', ')
+      : null;
+    const message =
+      fieldErrors ||
+      responseData.message ||
+      (responseData.error && responseData.error.message) ||
+      'Register failed. Check username, email, or phone and try again.';
+    dispatch(setAlert(message, 'error', 5000));
   } catch (error) {
     dispatch({ type: REGISTER_FAIL });
     dispatch(setAlert(error.message, 'error', 5000));

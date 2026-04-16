@@ -29,7 +29,8 @@ router.post('/cinemas/photo/:id', upload('cinemas').single('file'), async (req, 
     }
     const cinema = await Cinema.findById(movieId);
     if (!cinema) return res.sendStatus(404);
-    cinema.image = `${url}/${file.path}`;
+    const normalizedPath = file.path.replace(/\\/g, '/');
+    cinema.image = `${url}/${normalizedPath}`;
     await cinema.save();
     res.send({ cinema, file });
   } catch (e) {

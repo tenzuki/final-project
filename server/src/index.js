@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config({ path: path.join(__dirname, '../.env') });
@@ -18,9 +19,14 @@ const invitationsRouter = require('./routes/invitations');
 const app = express();
 app.disable('x-powered-by');
 const port = process.env.PORT || 8080;
+const clientBuildPath = path.join(__dirname, '../../client/build');
+const clientIndexPath = path.join(clientBuildPath, 'index.html');
+const hasClientBuild = fs.existsSync(clientIndexPath);
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../../client/build')));
+// Serve React build when available (Railway/prod builds), skip during local dev without build output.
+if (hasClientBuild) {
+  app.use(express.static(clientBuildPath));
+}
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use(function(req, res, next) {
@@ -53,7 +59,9 @@ app.use(invitationsRouter);
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname + '../client/index.html'));
-});
+if (hasClientBuild) {
+  app.get('/*', (req, res) => {
+    res.sendFile(clientIndexPath);
+  });
+}
 app.listen(port, () => console.log(`app is running in PORT: ${port}`));

@@ -31,7 +31,8 @@ router.post('/users/photo/:id', upload('users').single('file'), async (req, res,
     }
     const user = await User.findById(userId);
     if (!user) return res.sendStatus(404);
-    user.imageurl = `${url}/${file.path}`;
+    const normalizedPath = file.path.replace(/\\/g, '/');
+    user.imageurl = `${url}/${normalizedPath}`;
     await user.save();
     res.send({ user, file });
   } catch (e) {

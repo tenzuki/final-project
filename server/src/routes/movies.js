@@ -22,11 +22,9 @@ router.post(
   auth.enhance,
   upload('movies').single('file'),
   async (req, res, next) => {
-    console.log('in here');
     const url = `${req.protocol}://${req.get('host')}`;
     const { file } = req;
     const movieId = req.params.id;
-    console.log('check movie id', movieId);
     try {
       if (!file) {
         const error = new Error('Please upload a file');
@@ -35,15 +33,14 @@ router.post(
       }
       const movie = await Movie.findById(movieId);
 
-      console.log('check new', movie);
-
       if (!movie) return res.sendStatus(404);
-      movie.image = `${url}/${file.path}`;
+      const normalizedPath = file.path.replace(/\\/g, '/');
+      movie.image = `${url}/${normalizedPath}`;
       await movie.save();
       res.send({ movie, file });
     } catch (e) {
       console.log(e);
-      res.sendStatus(400).send(e);
+      res.status(400).send(e);
     }
   }
 );
