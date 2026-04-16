@@ -5,11 +5,9 @@ import { ThemeProvider } from '@material-ui/core/styles';
 //Redux
 import { Provider } from 'react-redux';
 import store from './store';
-import { loadUser } from './store/actions';
 
 import theme from './theme';
 import { Alert } from './components';
-import { pageCursors } from './utils';
 import Routes from './Routes';
 
 import './assets/scss/index.scss';
